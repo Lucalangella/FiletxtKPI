@@ -22,8 +22,12 @@ class FileConverterViewModel: ObservableObject {
     @Published var alertMessage: String = ""
     @Published var fileName: String = ""
     
+    // MARK: - Data Analysis Properties
+    @Published var showAnalysisView: Bool = false
+    
     // MARK: - Dependencies
     private let conversionService: FileConversionServiceProtocol
+    private let dataAnalysisViewModel = DataAnalysisViewModel()
     
     // MARK: - Initialization
     init(conversionService: FileConversionServiceProtocol = FileConversionService()) {
@@ -95,6 +99,15 @@ class FileConverterViewModel: ObservableObject {
         showExportSheet = true
     }
     
+    func analyzeText() {
+        Task {
+            await dataAnalysisViewModel.analyzeText(convertedText)
+            if dataAnalysisViewModel.showAnalysisView {
+                showAnalysisView = true
+            }
+        }
+    }
+    
     func dismissAlert() {
         showAlert = false
         alertMessage = ""
@@ -102,6 +115,11 @@ class FileConverterViewModel: ObservableObject {
     
     func dismissExportSheet() {
         showExportSheet = false
+    }
+    
+    func dismissAnalysisView() {
+        showAnalysisView = false
+        dataAnalysisViewModel.resetAnalysis()
     }
     
     // MARK: - Computed Properties
@@ -113,11 +131,27 @@ class FileConverterViewModel: ObservableObject {
         !convertedText.isEmpty
     }
     
+    var canAnalyze: Bool {
+        hasConvertedText && !dataAnalysisViewModel.isAnalyzing
+    }
+    
     var convertButtonTitle: String {
         isConverting ? "Converting..." : "Convert to TXT"
     }
     
     var convertButtonIcon: String {
         isConverting ? "" : "arrow.right.circle"
+    }
+    
+    var analysisButtonTitle: String {
+        dataAnalysisViewModel.analysisButtonTitle
+    }
+    
+    var analysisButtonIcon: String {
+        dataAnalysisViewModel.analysisButtonIcon
+    }
+    
+    var analysisResult: AnalysisResult? {
+        dataAnalysisViewModel.analysisResult
     }
 } 

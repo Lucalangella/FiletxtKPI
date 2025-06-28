@@ -10,6 +10,10 @@ import SwiftUI
 struct ConvertedTextView: View {
     let text: String
     let onExport: () -> Void
+    let onAnalyze: () -> Void
+    let canAnalyze: Bool
+    let analysisButtonTitle: String
+    let analysisButtonIcon: String
     
     var body: some View {
         VStack(alignment: .leading, spacing: 10) {
@@ -17,6 +21,18 @@ struct ConvertedTextView: View {
                 Text("Converted Text")
                     .font(.headline)
                 Spacer()
+                
+                // Analysis Button
+                Button(action: onAnalyze) {
+                    HStack(spacing: 4) {
+                        Image(systemName: analysisButtonIcon)
+                        Text(analysisButtonTitle)
+                    }
+                }
+                .buttonStyle(.bordered)
+                .disabled(!canAnalyze)
+                
+                // Export Button
                 Button("Export") {
                     onExport()
                 }
@@ -39,6 +55,10 @@ struct ConvertedTextView: View {
 #Preview {
     ConvertedTextView(
         text: "This is sample converted text that would appear after file conversion.",
-        onExport: {}
+        onExport: {},
+        onAnalyze: {},
+        canAnalyze: true,
+        analysisButtonTitle: "Analyze with ML",
+        analysisButtonIcon: "brain"
     )
 } 

@@ -24,9 +24,10 @@ struct ContentView: View {
                         .font(.largeTitle)
                         .fontWeight(.bold)
                     
-                    Text("Convert any file to plain text format")
+                    Text("Convert any file to plain text format and analyze with ML")
                         .font(.subheadline)
                         .foregroundColor(.secondary)
+                        .multilineTextAlignment(.center)
                 }
                 .padding(.top, 20)
                 
@@ -63,7 +64,11 @@ struct ContentView: View {
                 if viewModel.hasConvertedText {
                     ConvertedTextView(
                         text: viewModel.convertedText,
-                        onExport: viewModel.exportFile
+                        onExport: viewModel.exportFile,
+                        onAnalyze: viewModel.analyzeText,
+                        canAnalyze: viewModel.canAnalyze,
+                        analysisButtonTitle: viewModel.analysisButtonTitle,
+                        analysisButtonIcon: viewModel.analysisButtonIcon
                     )
                 }
                 
@@ -95,6 +100,14 @@ struct ContentView: View {
         }
         .sheet(isPresented: $viewModel.showExportSheet) {
             ExportView(text: viewModel.convertedText, fileName: viewModel.fileName)
+        }
+        .sheet(isPresented: $viewModel.showAnalysisView) {
+            if let analysisResult = viewModel.analysisResult {
+                DataAnalysisView(analysisResult: analysisResult)
+                    .onDisappear {
+                        viewModel.dismissAnalysisView()
+                    }
+            }
         }
         .alert("Error", isPresented: $viewModel.showAlert) {
             Button("OK") {
